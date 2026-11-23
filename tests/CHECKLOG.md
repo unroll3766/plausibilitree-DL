@@ -50,3 +50,11 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   FEATURES_DIR/LABELS_DIR/LABEL_KEY). NOT executed end-to-end: no torch on
   this box (checked ssf/NeedLR/pdal/raster_diagrams/base). The data contract
   (npz `points` + json `labels[<key>]`) is covered by tests/run_all.py.
+- 2026-11-23 — Notebook audit pass (user asked to check work): read all 7
+  cells, found 3 real bugs and fixed them — train loader now uses
+  drop_last (a final 1-sample batch crashes BatchNorm1d in train mode);
+  label std guards n==1 (NaN) and zero-std; PlotDataset validates LABEL_KEY
+  at construction with the available keys listed. Also train loss now
+  divides by seen samples (drop_last). Regenerated via tests/_tmp/gen_nb.py,
+  revalidated (6 code cells compile, fix markers present), check.py exit 0,
+  tests/run_all.py 18/18 exit 0. Still not executed end-to-end (no torch).
