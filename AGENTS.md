@@ -121,10 +121,12 @@ adds facts specific to this repository.
   seeded `numpy.random.Generator` per run (seed via `--seed`); never use
   global random state.
 - Diagnostics to stderr, per-plot progress + summary to stdout. Exit codes:
-  0 ok, 2 config/usage error (incl. MIN_POINTS_DROP > MIN_POINTS_PAD),
-  3 some plots failed.
-- Voxel downsample is PDAL `filters.voxeldownsize` mode=center equivalent:
-  one retained point per occupied voxel (the first point found, x/y/z
-  overwritten to the voxel center), other dims carried unchanged.
+  0 ok, 2 aborted (config/usage error incl. MIN_POINTS_DROP > MIN_POINTS_PAD,
+  or --stop-on-error), 3 finished but some plots failed.
+- Voxel downsample is PDAL `filters.voxeldownsize` mode=center equivalent
+  (verified against local PDAL 3.5.5): the voxel grid is anchored at the
+  cloud's first point a, id = floor((p-a)/res + 0.5) per axis, center =
+  a + id*res; one retained point per occupied voxel (the first point found,
+  x/y/z overwritten to the voxel center), other dims carried unchanged.
 - Drop check runs before padding (notes.md); both apply to the
   post-subsample count.

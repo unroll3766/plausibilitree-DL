@@ -67,10 +67,11 @@ class Plot:
         p = os.path.join(self.textual_dir(), f"{self.uid}_scene.json")
         return p if os.path.exists(p) else None
 
-    def raster_path(self, info_key: str, layout_key_dir: Optional[str] = None) -> Optional[str]:
+    def raster_path(self, info_key: str, layout_rel: Optional[str] = None) -> Optional[str]:
         """Resolve an optional raster recorded in the info JSON (CHM_PATH /
         DTM_PATH). Those paths are stored relative to the plot directory;
-        the collection root and the layout's rasters/ dir are fallbacks."""
+        the collection root and plausibilitree's layout.py `rasters/` dir
+        (layout_rel, e.g. "rasters/<uid>_dtm.tif") are fallbacks."""
         info = self.info()
         rel = info.get(info_key)
         candidates = []
@@ -78,9 +79,8 @@ class Plot:
             candidates += [os.path.join(self.dir, rel),
                            os.path.join(os.path.dirname(self.dir), rel),
                            rel]
-        if layout_key_dir:
-            candidates.append(os.path.join(self.placement, layout_key_dir,
-                                           f"{self.uid}_{'dtm'}.tif"))
+        if layout_rel:
+            candidates.append(os.path.join(self.placement, layout_rel))
         for c in candidates:
             if os.path.exists(c):
                 return c

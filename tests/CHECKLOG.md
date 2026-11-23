@@ -19,3 +19,19 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   --subsample fps --n-fps 512 --min-points-pad 512 --normalize-labels-by-area
   --include-chm --seed 1` → exit 0; labels/plot_demo.json shows values divided
   by PLOT_AREA (NUM_TREES 4 -> 0.0056588...), manifest.json summary 1 ok.
+- 2026-11-23 — Audit pass vs notes.md. Fixes: --stop-on-error now exits 2
+  (was 3); empty source cloud is "dropped" not "failed"; feature meta stores
+  the source cloud path relative to the plot dir (portable); check.py also
+  compiles tests/. Added tests t_stop_on_error_exit_code, t_empty_cloud_dropped.
+- 2026-11-23 — Voxel downsample re-verified against real PDAL (env `pdal`,
+  PDAL 3.5.5): `conda run -n pdal python tests/_tmp/pdal_crosscheck.py` on
+  31988 points (plot_demo understory + 5000 synthetic, incl. negative coords),
+  cell 0.5 → EXACT MATCH, 10981 voxels, centers + carried dims identical.
+  Probing showed PDAL anchors the voxel grid at the FIRST point read
+  (not origin/header offset), id = floor((p-a)/cell + 0.5), center = a+id*cell;
+  subsample.py now implements exactly that (earlier origin-anchored grid was
+  wrong — 10922 vs 10981 voxels on the same cloud). Note: PDAL's readers.text
+  needs "skip": 1 to drop the file header or it parses it as a (0,0,0) point.
+- 2026-11-23 — Re-run after fixes: check.py exit 0 (28 files);
+  tests/run_all.py 17/17 exit 0; CLI voxel run on plot_demo exit 0
+  (26988 -> 72 points at res 0.5).

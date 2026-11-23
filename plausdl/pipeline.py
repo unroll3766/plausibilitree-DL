@@ -50,6 +50,8 @@ def process_plot(plot: Plot, out_dir: str, cfg: PrepConfig,
     xyz, dims = read_laz(cloud)
     n_in = len(xyz)
     rec["n_points_in"] = n_in
+    if n_in == 0:
+        raise DropPlot("empty source cloud")
 
     xyz, norm_meta = normalize_points(xyz, cfg.normalize)
 
@@ -88,7 +90,8 @@ def process_plot(plot: Plot, out_dir: str, cfg: PrepConfig,
         rasters["chm"] = arr
         raster_meta["chm"] = rmeta
     if cfg.include_dtm:
-        p = plot.raster_path("DTM_PATH", layout_key_dir="rasters")
+        p = plot.raster_path("DTM_PATH",
+                             layout_rel=os.path.join("rasters", f"{plot.uid}_dtm.tif"))
         if p is None:
             raise PlotError(f"plot {plot.uid!r}: DTM_PATH not found in info JSON")
         arr, rmeta = read_raster(p)
@@ -101,7 +104,7 @@ def process_plot(plot: Plot, out_dir: str, cfg: PrepConfig,
              f"{', '.join(missing)}")
         rec["missing_labels"] = missing
 
-    meta = feature_meta(plot.uid, cloud, source_name, n_in, len(xyz),
+    meta = feature_meta(plot.uid, rec["source_cloud"], source_name, n_in, len(xyz),
                         norm_meta, info, scene, rec["subsample"], raster_meta)
     write_features(os.path.join(out_dir, "features", f"{plot.uid}.npz"),
                    xyz, dims, meta, rasters)
@@ -113,7 +116,8 @@ def process_plot(plot: Plot, out_dir: str, cfg: PrepConfig,
 
 def run(input_dir: str, out_dir: str, cfg: PrepConfig) -> int:
     """Run the preparation over `input_dir` into `out_dir`. Returns the
-    process exit code (0 ok, 2 config error, 3 some plots failed)."""
+    process exit code: 0 ok, 2 aborted (config error or --stop-on-error),
+    3 finished but some plots failed."""
     try:
         cfg.validate()
     except ValueError as exc:
@@ -142,6 +146,7 @@ def run(input_dir: str, out_dir: str, cfg: PrepConfig) -> int:
         "plots": [],
     }
     n_ok = n_dropped = n_failed = n_skipped = 0
+    stopped = False
     t0 = time.time()
     for plot in plots:
         feat = os.path.join(features_dir, f"{plot.uid}.npz")
@@ -164,6 +169,7 @@ def run(input_dir: str, out_dir: str, cfg: PrepConfig) -> int:
             print(f"{plot.uid}: FAILED ({type(exc).__name__}: {exc})")
             manifest["plots"].append(rec)
             if cfg.stop_on_error:
+                stopped = True
                 break
             continue
         manifest["plots"].append(rec)
@@ -186,4 +192,6 @@ def run(input_dir: str, out_dir: str, cfg: PrepConfig) -> int:
     s = manifest["summary"]
     print(f"done: {s['ok']} ok, {s['dropped']} dropped, {s['failed']} failed, "
           f"{s['skipped_existing']} skipped (existing) in {s['seconds']} s -> {out_dir}")
+    if stopped:
+        return EXIT_CONFIG_ERROR
     return EXIT_SOME_FAILED if n_failed else EXIT_OK

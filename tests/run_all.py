@@ -95,9 +95,9 @@ def write_plot(root: str, uid: str, xyz: np.ndarray, sem: np.ndarray,
         "VOL_TREES": 35.0, "VOL_TRUNK": 5.0, "VOL_BRANCH": 22.0,
         "VOL_FOLIAGE": 8.0, "VOL_SHRUB": 0.4, "VOL_GRASS": 10.0,
         "PLOT_SHAPE": "circle", "PLOT_AREA": 100.0,
-        "BOUNDING_BOX": [float(xyz[:, 0].min()), float(xyz[:, 1].min()),
-                         float(xyz[:, 2].min()), float(xyz[:, 0].max()),
-                         float(xyz[:, 1].max()), float(xyz[:, 2].max())],
+        "BOUNDING_BOX": ([float(xyz[:, i].min()) for i in range(3)]
+                         + [float(xyz[:, i].max()) for i in range(3)]
+                         if len(xyz) else [0.0] * 6),
         "meta": {"plot_uid": uid, "coordinate_system": "local", "units": "meters"},
     }
     if with_chm:
@@ -173,15 +173,25 @@ def t_normalize_none_passthrough():
 
 
 def t_voxel_center_pdal_equivalence():
-    # res=1: voxels are floor(p); retained point = first in voxel, coords ->
-    # voxel center (PDAL mode=center); other dims carried unchanged.
-    xyz = np.array([[0.1, 0.1, 0.1], [0.9, 0.2, 0.2], [1.1, 0.1, 0.1],
-                    [-0.1, 0.0, 0.0]])
-    dims = {"semantic_code": np.array([1, 3, 2, 9], dtype=np.int8)}
+    # PDAL mode=center (verified against PDAL 3.5.5): grid anchored at the
+    # FIRST point a=xyz[0]; id = floor((p-a)/res + 0.5) per axis (ties round
+    # up); center = a + id*res; first point per voxel retained, coords
+    # overwritten, other dims carried unchanged.
+    xyz = np.array([[0.1, 0.1, 0.1],   # a: id (0,0,0)
+                    [1.1, 0.2, 0.2],   # rel (1.0,.1,.1) -> id (1,0,0)
+                    [1.4, 0.1, 0.1],   # rel (1.3,0,0)   -> id (1,0,0) dup
+                    [-0.4, 0.1, 0.1],  # rel (-0.5,0,0)  -> tie rounds up -> id (0,0,0) dup
+                    [-0.6, 0.1, 0.1],  # rel (-0.7,0,0)  -> id (-1,0,0)
+                    [0.6, 1.1, 2.1],   # rel (0.5,1.0,2.0) -> id (1,1,2)  [x tie up]
+                    [1.6, 0.1, 0.1]])  # rel (1.5,0,0)   -> id (2,0,0)  [tie up]
+    dims = {"semantic_code": np.array([1, 3, 2, 9, 7, 5, 4], dtype=np.int8)}
     out, od = voxel_downsample_center(xyz, dims, 1.0)
-    assert out.shape == (3, 3), out
-    assert np.allclose(out, [[0.5, 0.5, 0.5], [1.5, 0.5, 0.5], [-0.5, 0.5, 0.5]]), out
-    assert list(od["semantic_code"]) == [1, 2, 9], od  # first point per voxel wins
+    assert out.shape == (5, 3), out
+    a = np.array([0.1, 0.1, 0.1])
+    exp = [a + np.array(v) * 1.0 for v in [(0, 0, 0), (1, 0, 0), (-1, 0, 0),
+                                          (1, 1, 2), (2, 0, 0)]]
+    assert np.allclose(out, exp), out
+    assert list(od["semantic_code"]) == [1, 3, 7, 5, 4], od  # first per voxel wins
 
 
 def t_fps():
@@ -361,6 +371,31 @@ def t_source_auto_fallback():
     assert rc == 0, rc
     with open(os.path.join(out, "manifest.json")) as fh:
         assert json.load(fh)["plots"][0]["source"] == "raw"
+
+
+def t_stop_on_error_exit_code():
+    root = make_run_dir()
+    out = os.path.join(TMP, "out5")
+    rc = run(root, out, base_cfg(stop_on_error=True))
+    assert rc == 2, rc  # plot_002 fails -> batch aborted with exit 2
+    with open(os.path.join(out, "manifest.json")) as fh:
+        man = json.load(fh)
+    assert man["plots"][-1]["status"] == "failed"
+
+
+def t_empty_cloud_dropped():
+    root = os.path.join(TMP, "run_empty")
+    shutil.rmtree(root, ignore_errors=True)
+    os.makedirs(root)
+    write_plot(root, "plot_020", np.zeros((0, 3)), np.zeros(0, dtype=np.int8))
+    out = os.path.join(TMP, "out_empty")
+    rc = run(root, out, base_cfg(subsample="none", voxel_res=None,
+                                 min_points_drop=5, min_points_pad=None))
+    assert rc == 0, rc
+    with open(os.path.join(out, "manifest.json")) as fh:
+        rec = json.load(fh)["plots"][0]
+    assert rec["status"] == "dropped" and "empty" in rec["reason"], rec
+    assert not os.path.exists(os.path.join(out, "features", "plot_020.npz"))
 
 
 def t_integration_plot_demo():

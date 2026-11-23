@@ -14,7 +14,8 @@ Output : <out_dir>/features/<plot_uid>.npz  (points + extra dims + meta)
          <out_dir>/labels/<plot_uid>.json    (labels from the plot info JSON)
          <out_dir>/manifest.json             (per-plot status + config)
 
-Exit codes: 0 ok, 2 config/usage error, 3 some plots failed. See notes.md.
+Exit codes: 0 ok, 2 aborted (config/usage error or --stop-on-error),
+3 finished but some plots failed. See notes.md.
 """
 
 from __future__ import annotations

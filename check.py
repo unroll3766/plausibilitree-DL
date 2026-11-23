@@ -13,11 +13,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 def main() -> int:
     targets = [os.path.join(HERE, "prepare.py"), os.path.join(HERE, "check.py")]
-    pkg = os.path.join(HERE, "plausdl")
-    for root, _dirs, files in os.walk(pkg):
-        for f in sorted(files):
-            if f.endswith(".py"):
-                targets.append(os.path.join(root, f))
+    for sub in ("plausdl", "tests"):
+        for root, _dirs, files in os.walk(os.path.join(HERE, sub)):
+            for f in sorted(files):
+                if f.endswith(".py"):
+                    targets.append(os.path.join(root, f))
     failed = 0
     for path in targets:
         try:
