@@ -44,3 +44,9 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   exit 0; CLI voxel run on plot_demo exit 0 (26988 -> 78 points at res 0.5).
   PDAL crosscheck (tests/_tmp/pdal_crosscheck.py) now differs from PDAL by
   design (PDAL anchors at first point); kept only as a scratch reference.
+- 2026-11-23 — notebooks/train_pointnet.ipynb generated (tests/_tmp/gen_nb.py)
+  and validated (tests/_tmp/validate_nb.py): nbformat 4.5, 7 cells, all 6
+  code cells compile, knobs present (DEVICE_CHOICE cpu/mps/cuda/auto,
+  FEATURES_DIR/LABELS_DIR/LABEL_KEY). NOT executed end-to-end: no torch on
+  this box (checked ssf/NeedLR/pdal/raster_diagrams/base). The data contract
+  (npz `points` + json `labels[<key>]`) is covered by tests/run_all.py.

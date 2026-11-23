@@ -1,0 +1,9 @@
+# Training-environment requirements for notebooks/ (the data-prep pipeline
+# itself only needs the root requirements.txt).
+# CPU:            pip install torch --index-url https://download.pytorch.org/whl/cpu
+# Apple Silicon:  pip install torch   (MPS is included in the macOS build)
+# CUDA:           pip install torch   (default PyPI build ships CUDA wheels)
+torch
+numpy
+matplotlib
+jupyter

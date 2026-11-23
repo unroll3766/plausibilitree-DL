@@ -101,9 +101,13 @@ adds facts specific to this repository.
   lazrs, scipy, rasterio). Run everything through the wrapper:
   `conda run -n ssf python <script>`. Invoking the env's python (or
   `python3`) standalone is blocked on this box.
-- requirements.txt lists what the library itself needs. A dedicated env
-  will be created when an actual DL framework dependency (torch etc.) is
-  needed — installing anything new requires asking first.
+- requirements.txt lists what the data-prep library itself needs. The training
+  notebook (`notebooks/train_pointnet.ipynb`) needs a separate env with
+  `torch` + `jupyter` — see `notebooks/requirements.txt`. As of 2026-11-23 no
+  env on this box has torch (checked ssf/NeedLR/pdal/raster_diagrams/base);
+  creating one requires asking first (install rule). The notebook is
+  validated structurally (nbformat + every code cell compiles) but has NOT
+  been executed end-to-end on this box.
 
 ## Commands
 - Static sanity check after code edits: `conda run -n ssf python check.py`

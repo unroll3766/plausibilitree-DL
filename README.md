@@ -84,10 +84,21 @@ Exit codes: 0 ok, 2 config/usage error, 3 some plots failed. Re-running a
 batch skips plots whose outputs already exist (resumable), unless
 `--force`.
 
+## Training a model on the prepared data
+
+[`notebooks/train_pointnet.ipynb`](notebooks/train_pointnet.ipynb) — bare-bones
+single-head **PointNet regression** in PyTorch. Set `DEVICE_CHOICE`
+(`"cpu"` / `"mps"` for the Apple integrated GPU / `"cuda"` / `"auto"`),
+`FEATURES_DIR` and `LABELS_DIR` (the `features/` and `labels/` folders written
+by `prepare.py`), and `LABEL_KEY` (e.g. `"VOL_TREES"`) in the config cell.
+Run with a PyTorch environment (`notebooks/requirements.txt`), e.g.
+`jupyter lab notebooks/train_pointnet.ipynb`.
+
 ## Development
 
 - Env: conda env `ssf` (shared with plausibilitree), always via
-  `conda run -n ssf python ...`.
+  `conda run -n ssf python ...`. The notebook needs a separate training env
+  with `torch` (see `notebooks/requirements.txt`); `ssf` has no torch.
 - `conda run -n ssf python check.py` — compile + import every module.
 - `conda run -n ssf python tests/run_all.py` — test suite (check `$?`).
 - Verification log: `tests/CHECKLOG.md`.
