@@ -14,7 +14,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 def main() -> int:
     targets = [os.path.join(HERE, "prepare.py"), os.path.join(HERE, "check.py")]
     for sub in ("plausdl", "tests"):
-        for root, _dirs, files in os.walk(os.path.join(HERE, sub)):
+        for root, dirs, files in os.walk(os.path.join(HERE, sub)):
+            dirs[:] = [d for d in dirs if d != "_tmp"]  # scratch, not source
             for f in sorted(files):
                 if f.endswith(".py"):
                     targets.append(os.path.join(root, f))

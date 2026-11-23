@@ -48,8 +48,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--subsample", default="none", choices=["none", "voxel", "fps"],
                    help="downsampling method")
     p.add_argument("--voxel-res", type=float, default=None,
-                   help="VOXEL_RES: voxel edge in metres (voxel downsample, "
-                        "PDAL voxeldownsize mode=center equivalent)")
+                   help="VOXEL_RES: voxel edge in metres (voxel downsample on an "
+                        "origin-anchored grid, PDAL mode=center style: one point "
+                        "per voxel at the voxel center; identical voxelization "
+                        "for every cloud)")
     p.add_argument("--n-fps", type=int, default=None,
                    help="N_FPS: number of points for farthest-point subsampling")
     p.add_argument("--min-points-drop", type=int, default=None,

@@ -2,16 +2,16 @@
 
 Two downsampling methods:
 
-- voxel: equivalent to PDAL filters.voxeldownsize with mode=center,
-  verified empirically against PDAL 3.5.5 on this box: the voxel grid of
-  edge VOXEL_RES is anchored at the cloud's FIRST point a (PDAL anchors the
-  grid at the first point read, not at the origin or the header offset);
-  per axis the voxel id is floor((p - a)/res + 0.5) (half-cell ties round
-  up) and the voxel center is a + id*res. For each populated voxel the
-  first point found is retained with its x/y/z overwritten to the voxel
-  center; all other points in the voxel are dropped, and the retained
-  point's non-coordinate dims are carried unchanged (PDAL's documented
-  behavior, including its warning that center mode overwrites X/Y/Z only).
+- voxel: one point per occupied voxel at the voxel center, in the style of
+  PDAL filters.voxeldownsize mode=center — but with the grid anchored at the
+  ORIGIN, not at PDAL's first point (owner decision 2026-11-23: voxelization
+  must be identical across any point cloud, independent of point order).
+  Per axis the voxel id is floor(p/res + 0.5) (voxels centered on multiples
+  of res; half-cell ties round up) and the voxel center is id*res. For each
+  populated voxel the first point found is retained with its x/y/z
+  overwritten to the voxel center; all other points in the voxel are
+  dropped, and the retained point's non-coordinate dims are carried
+  unchanged.
 - fps: farthest point sampling down to N_FPS points. The starting point is
   drawn from the seeded generator; afterwards each step adds the point with
   the largest squared distance to the already-selected set (ties: lowest
@@ -32,20 +32,21 @@ import numpy as np
 
 def voxel_downsample_center(xyz: np.ndarray, dims: Dict[str, np.ndarray],
                             res: float) -> Tuple[np.ndarray, Dict[str, np.ndarray]]:
-    """PDAL voxeldownsize mode=center equivalent. See module docstring.
+    """Origin-anchored voxel downsample, PDAL mode=center style. See module
+    docstring.
 
-    The grid is anchored at the first point `a = xyz[0]`; voxel id per axis
-    is floor((p - a)/res + 0.5) and the voxel center is a + id*res.
+    Voxel id per axis = floor(p/res + 0.5) (grid anchored at the origin, so
+    the voxelization of a cloud is independent of its point order), voxel
+    center = id*res.
     """
     if res <= 0:
         raise ValueError(f"voxel resolution must be > 0, got {res}")
     if len(xyz) == 0:
         return xyz.copy(), {k: np.asarray(v)[:0] for k, v in dims.items()}
-    anchor = xyz[0].astype(np.float64)
-    ids = np.floor((xyz - anchor) / res + 0.5).astype(np.int64)
+    ids = np.floor(xyz / res + 0.5).astype(np.int64)
     uniq, first = np.unique(ids, axis=0, return_index=True)
     order = np.argsort(first, kind="stable")  # keep first-occurrence order
-    centers = anchor + uniq[order].astype(np.float64) * res
+    centers = uniq[order].astype(np.float64) * res
     keep = first[order]
     out_dims = {k: np.asarray(v)[keep] for k, v in dims.items()}
     return centers, out_dims

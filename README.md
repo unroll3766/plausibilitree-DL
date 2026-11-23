@@ -53,9 +53,11 @@ portable to any DL library.
    [0,1] (`zero_1`). The original bounding box — including geospatial info
    when the plot is anchored — is preserved in the feature `meta`, along
    with the per-axis affine params so the transform is invertible.
-2. **Subsampling**: voxel downsample (PDAL `filters.voxeldownsize`
-   mode=center equivalent; `--voxel-res VOXEL_RES`) or farthest-point
-   subsampling (`--n-fps N_FPS`). Afterwards, in this order: plots with
+2. **Subsampling**: voxel downsample on an **origin-anchored** grid
+   (PDAL `filters.voxeldownsize` mode=center style — one point per voxel at
+   the voxel center — but anchored at the origin rather than PDAL's first
+   point, so the voxelization is identical for every cloud;
+   `--voxel-res VOXEL_RES`) or farthest-point subsampling (`--n-fps N_FPS`). Afterwards, in this order: plots with
    fewer than `--min-points-drop MIN_POINTS_DROP` points are excluded;
    plots with fewer than `--min-points-pad MIN_POINTS_PAD` points are padded
    with randomly duplicated, jittered (+/- `--pad-jitter PAD_JITTER`) points.

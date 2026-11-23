@@ -35,3 +35,12 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
 - 2026-11-23 — Re-run after fixes: check.py exit 0 (28 files);
   tests/run_all.py 17/17 exit 0; CLI voxel run on plot_demo exit 0
   (26988 -> 72 points at res 0.5).
+- 2026-11-23 — Owner decision: origin-anchored voxel grid (voxelization must
+  be identical across any point cloud; PDAL's first-point anchor rejected).
+  subsample.py now uses id = floor(p/res + 0.5), center = id*res (origin
+  anchor). New test t_voxel_order_invariant proves centers/count are identical
+  under input permutations; t_voxel_origin_anchored covers tie/dup semantics.
+  check.py exit 0 (11 files; _tmp scratch excluded); tests/run_all.py 18/18
+  exit 0; CLI voxel run on plot_demo exit 0 (26988 -> 78 points at res 0.5).
+  PDAL crosscheck (tests/_tmp/pdal_crosscheck.py) now differs from PDAL by
+  design (PDAL anchors at first point); kept only as a scratch reference.

@@ -123,10 +123,12 @@ adds facts specific to this repository.
 - Diagnostics to stderr, per-plot progress + summary to stdout. Exit codes:
   0 ok, 2 aborted (config/usage error incl. MIN_POINTS_DROP > MIN_POINTS_PAD,
   or --stop-on-error), 3 finished but some plots failed.
-- Voxel downsample is PDAL `filters.voxeldownsize` mode=center equivalent
-  (verified against local PDAL 3.5.5): the voxel grid is anchored at the
-  cloud's first point a, id = floor((p-a)/res + 0.5) per axis, center =
-  a + id*res; one retained point per occupied voxel (the first point found,
+- Voxel downsample is PDAL `filters.voxeldownsize` mode=center in style but
+  ORIGIN-anchored (owner decision 2026-11-23: voxelization must be identical
+  across any point cloud, independent of point order — PDAL itself anchors at
+  the first point read, we deliberately do not): id = floor(p/res + 0.5) per
+  axis (voxel centers on multiples of res, half-cell ties round up), center
+  = id*res; one retained point per occupied voxel (the first point found,
   x/y/z overwritten to the voxel center), other dims carried unchanged.
 - Drop check runs before padding (notes.md); both apply to the
   post-subsample count.

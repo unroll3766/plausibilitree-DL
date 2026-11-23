@@ -172,26 +172,41 @@ def t_normalize_none_passthrough():
     assert np.array_equal(out, xyz) and meta["mode"] == "none"
 
 
-def t_voxel_center_pdal_equivalence():
-    # PDAL mode=center (verified against PDAL 3.5.5): grid anchored at the
-    # FIRST point a=xyz[0]; id = floor((p-a)/res + 0.5) per axis (ties round
-    # up); center = a + id*res; first point per voxel retained, coords
-    # overwritten, other dims carried unchanged.
-    xyz = np.array([[0.1, 0.1, 0.1],   # a: id (0,0,0)
-                    [1.1, 0.2, 0.2],   # rel (1.0,.1,.1) -> id (1,0,0)
-                    [1.4, 0.1, 0.1],   # rel (1.3,0,0)   -> id (1,0,0) dup
-                    [-0.4, 0.1, 0.1],  # rel (-0.5,0,0)  -> tie rounds up -> id (0,0,0) dup
-                    [-0.6, 0.1, 0.1],  # rel (-0.7,0,0)  -> id (-1,0,0)
-                    [0.6, 1.1, 2.1],   # rel (0.5,1.0,2.0) -> id (1,1,2)  [x tie up]
-                    [1.6, 0.1, 0.1]])  # rel (1.5,0,0)   -> id (2,0,0)  [tie up]
-    dims = {"semantic_code": np.array([1, 3, 2, 9, 7, 5, 4], dtype=np.int8)}
+def t_voxel_origin_anchored():
+    # Origin-anchored grid (owner decision 2026-11-23): id = floor(p/res+0.5)
+    # per axis, center = id*res, ties round up; first point per voxel
+    # retained, coords overwritten to the center, other dims carried.
+    xyz = np.array([[0.1, 0.1, 0.1],    # id (0,0,0)
+                    [1.1, 0.2, 0.2],    # id (1,0,0)
+                    [1.4, 0.1, 0.1],    # id (1,0,0) dup
+                    [-0.4, 0.1, 0.1],   # floor(-0.4+0.5)=0 -> id (0,0,0) dup
+                    [-0.6, 0.1, 0.1],   # floor(-0.6+0.5)=-1 -> id (-1,0,0)
+                    [0.6, 1.1, 2.1],    # id (1,1,2)
+                    [1.6, 0.1, 0.1],    # floor(1.6+0.5)=2 -> id (2,0,0) [tie up]
+                    [0.5, -0.5, 0.0]])  # floor(1.0,0.0,0.5) -> id (1,0,0) dup
+    dims = {"semantic_code": np.array([1, 3, 2, 9, 7, 5, 4, 8], dtype=np.int8)}
     out, od = voxel_downsample_center(xyz, dims, 1.0)
     assert out.shape == (5, 3), out
-    a = np.array([0.1, 0.1, 0.1])
-    exp = [a + np.array(v) * 1.0 for v in [(0, 0, 0), (1, 0, 0), (-1, 0, 0),
-                                          (1, 1, 2), (2, 0, 0)]]
+    exp = np.array([[0, 0, 0], [1, 0, 0], [-1, 0, 0], [1, 1, 2], [2, 0, 0]],
+                   dtype=np.float64)
     assert np.allclose(out, exp), out
     assert list(od["semantic_code"]) == [1, 3, 7, 5, 4], od  # first per voxel wins
+
+
+def t_voxel_order_invariant():
+    # the grid is anchored at the origin, so voxelization (centers + count)
+    # must be identical for any permutation of the input points; only the
+    # retained point's dims can differ (first point per voxel wins)
+    rng = np.random.default_rng(11)
+    xyz = rng.uniform(-20, 20, size=(2000, 3))
+    dims = {"semantic_code": rng.integers(0, 10, size=2000).astype(np.int8)}
+    out0, _ = voxel_downsample_center(xyz, dims, 0.5)
+    for seed in (1, 2, 3):
+        perm = np.random.default_rng(seed).permutation(len(xyz))
+        out1, _ = voxel_downsample_center(
+            xyz[perm], {"semantic_code": dims["semantic_code"][perm]}, 0.5)
+        assert len(out1) == len(out0)
+        assert np.array_equal(np.sort(out0, axis=0), np.sort(out1, axis=0))
 
 
 def t_fps():
