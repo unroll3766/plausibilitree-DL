@@ -70,3 +70,13 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   preds still un-standardized. Validator asserts the wrong pattern is gone.
   Regenerated + revalidated (8 cells, 7 compile, fix marker present),
   check.py exit 0, tests/run_all.py 18/18 exit 0.
+- 2026-11-23 — Notebook: EXTRA_DIMS knob — user picks which per-point channels
+  from the .npz to train on (e.g. ["semantic_code"]); they are stacked onto
+  xyz and PointNetReg takes in_channels = 3 + len(EXTRA_DIMS). Config cell
+  prints available npz arrays + label keys; dataset validates EXTRA_DIMS /
+  LABEL_KEY against the first files. Validated structurally (8 cells, 7 code
+  cells compile, markers present). Numpy-only contract check against a real
+  prepare.py output (tests/_tmp/nb_contract.py): npz arrays = points +
+  classification, tree_id, shrub_id, semantic_code, branch_code, branch_id,
+  height_above_ground + meta; points+semantic_code stack to (N, 4); label
+  pairing by shared name OK. check.py exit 0, tests 18/18.
