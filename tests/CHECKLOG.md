@@ -108,3 +108,9 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   in all three projections (x-y, x-z, y-z) as a 1x3 subplot row instead of
   x-y only. Regenerated + revalidated (26 AE markers incl. the three plane
   pairs), check.py exit 0, tests 18/18.
+- 2026-11-23 — Autoencoder OUTPUT_RANGE knob: decoder xyz output bounded via
+  tanh (neg1_1, [-1,1]) or sigmoid (zero_1, [0,1]), "none" = linear; extra
+  dims unbounded. Eval cell also prints the recon xyz range. Bound logic
+  verified in numpy (tests/_tmp/bound_check.py): xyz within range, extra dims
+  bit-identical. Regenerated + revalidated (31 AE markers), check.py exit 0,
+  tests 18/18.
