@@ -58,3 +58,9 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   divides by seen samples (drop_last). Regenerated via tests/_tmp/gen_nb.py,
   revalidated (6 code cells compile, fix markers present), check.py exit 0,
   tests/run_all.py 18/18 exit 0. Still not executed end-to-end (no torch).
+- 2026-11-23 — Notebook: added a descriptive-stats cell for the chosen label
+  (n, mean, std, min, max over ALL plots + optional matplotlib histogram),
+  placed right after the dataset cell. Regenerated + revalidated: nbformat
+  4.5, 8 cells, 7 code cells compile, stats markers present
+  (tests/_tmp/validate_nb.py). check.py exit 0, tests/run_all.py 18/18 exit 0.
+  Still not executed end-to-end (no torch on this box).
