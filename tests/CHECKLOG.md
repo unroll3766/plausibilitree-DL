@@ -98,3 +98,9 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   batch (1,4,1024), scatter slice (2,1024), range [-0.9978, 1] at neg1_1).
   Added an input-value-range print to the eval cell as a sanity check.
   Regenerated + revalidated (17 markers), check.py exit 0, tests 18/18.
+- 2026-11-23 — Autoencoder LOSS knob added: "mse" | "l1" | "huber" |
+  "chamfer" (symmetric xyz Chamfer via torch.cdist; O(N_POINTS^2) memory
+  noted in a comment). Train loop prints the objective plus MSE every 5
+  epochs; eval prints both. Chamfer formula verified in numpy
+  (tests/_tmp/chamfer_check.py): self=0, symmetric, single-point case exact.
+  Notebooks revalidated (22 AE markers), check.py exit 0, tests 18/18.
