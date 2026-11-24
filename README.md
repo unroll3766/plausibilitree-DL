@@ -94,6 +94,12 @@ by `prepare.py`), and `LABEL_KEY` (e.g. `"VOL_TREES"`) in the config cell.
 Run with a PyTorch environment (`notebooks/requirements.txt`), e.g.
 `jupyter lab notebooks/train_pointnet.ipynb`.
 
+[`notebooks/autoencoder.ipynb`](notebooks/autoencoder.ipynb) — same design,
+but an unsupervised PointNet-style **autoencoder** (no labels needed). Set
+`N_SAMPLES = 1` to load a single plot and tweak the model until it overfits
+it; `EXTRA_DIMS` selects the extra per-point channels; `N_POINTS` fixes the
+points per sample.
+
 ## Development
 
 - Env: conda env `ssf` (shared with plausibilitree), always via

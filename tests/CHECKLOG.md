@@ -80,3 +80,13 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   classification, tree_id, shrub_id, semantic_code, branch_code, branch_id,
   height_above_ground + meta; points+semantic_code stack to (N, 4); label
   pairing by shared name OK. check.py exit 0, tests 18/18.
+- 2026-11-23 — notebooks/autoencoder.ipynb added (tests/_tmp/gen_ae.py):
+  PointNet-style autoencoder, unsupervised (features only). Knobs:
+  DEVICE_CHOICE (cpu/mps/cuda/auto), FEATURES_DIR, EXTRA_DIMS, N_POINTS,
+  N_SAMPLES (int or "all"; 1 = load one plot and overfit it — the train loop
+  repeats a lone batch to BATCH_SIZE so BatchNorm1d doesn't crash at B=1),
+  LATENT_DIM, BATCH_SIZE, EPOCHS, LR, SEED. Eval cell prints recon MSE of the
+  first sample + optional original-vs-reconstructed scatter. Validated
+  structurally (nbformat 4.5, 7 cells, 6 code cells compile, 16 markers) via
+  tests/_tmp/validate_nb.py, which now checks BOTH notebooks. check.py exit 0,
+  tests/run_all.py 18/18 exit 0. Not executed end-to-end (no torch on box).
