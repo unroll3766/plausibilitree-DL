@@ -64,3 +64,9 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   4.5, 8 cells, 7 code cells compile, stats markers present
   (tests/_tmp/validate_nb.py). check.py exit 0, tests/run_all.py 18/18 exit 0.
   Still not executed end-to-end (no torch on this box).
+- 2026-11-23 — User-reported bug fixed: eval cell re-scaled the TRUE labels
+  (y.numpy()*y_std+y_mean) although dataset labels are already in original
+  units — NUM_TREES max 655 plotted up to ~50k. Now trues.append(y.numpy());
+  preds still un-standardized. Validator asserts the wrong pattern is gone.
+  Regenerated + revalidated (8 cells, 7 compile, fix marker present),
+  check.py exit 0, tests/run_all.py 18/18 exit 0.
