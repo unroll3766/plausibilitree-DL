@@ -90,3 +90,11 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   structurally (nbformat 4.5, 7 cells, 6 code cells compile, 16 markers) via
   tests/_tmp/validate_nb.py, which now checks BOTH notebooks. check.py exit 0,
   tests/run_all.py 18/18 exit 0. Not executed end-to-end (no torch on box).
+- 2026-11-23 — User asked to double-check the autoencoder's final sample plot
+  (same bug as the regression eval cell, or model fit?). Verdict: NOT the
+  scaling bug — the AE notebook has no label standardization; both scatter
+  series come from the same (C, N) model space (slicing contract verified
+  numpy-only vs a real prepare.py output, tests/_tmp/ae_eval_shapes.py:
+  batch (1,4,1024), scatter slice (2,1024), range [-0.9978, 1] at neg1_1).
+  Added an input-value-range print to the eval cell as a sanity check.
+  Regenerated + revalidated (17 markers), check.py exit 0, tests 18/18.
