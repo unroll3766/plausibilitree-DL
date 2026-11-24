@@ -104,3 +104,7 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   epochs; eval prints both. Chamfer formula verified in numpy
   (tests/_tmp/chamfer_check.py): self=0, symmetric, single-point case exact.
   Notebooks revalidated (22 AE markers), check.py exit 0, tests 18/18.
+- 2026-11-23 — Autoencoder eval cell now plots original vs reconstructed points
+  in all three projections (x-y, x-z, y-z) as a 1x3 subplot row instead of
+  x-y only. Regenerated + revalidated (26 AE markers incl. the three plane
+  pairs), check.py exit 0, tests 18/18.
