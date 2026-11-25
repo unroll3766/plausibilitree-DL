@@ -156,3 +156,15 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   line. Validator gained a FORBIDDEN pattern (max(dim=1).values.argmax) so this
   cannot regress. Regenerated + revalidated (58 AE markers), check.py exit 0,
   tests 18/18. Still not executed under torch - no torch on this box.
+- 2026-11-24 — REAL execution under torch (new `pytorch` conda env created by
+  user; installed pytorch 2.15.0 cpuonly + numpy + matplotlib via conda).
+  Executed the actual notebook cells (tests/_tmp/exec_real.py runner, synthetic
+  6-plot dataset in /tmp/nbtest): train_pointnet.ipynb defaults OK (20 epochs,
+  label stats, eval RMSE/MAE + scatter); autoencoder.ipynb ARCH=pointnet
+  defaults OK (N_SAMPLES=1 overfit mode, 50 epochs); ARCH=pointnet++ mse OK
+  (loss 2.48 -> 0.99, the FPS fix confirmed - no more dim-out-of-range);
+  pointnet++ + LOSS=chamfer + N_SAMPLES=all + PATIENCE=3 OK (early stopping
+  fired, best checkpoint restored); pointnet + N_SAMPLES=all + PATIENCE=2 +
+  OUTPUT_RANGE=zero_1 OK (recon xyz in [0,1]). Also a numpy torch-shim
+  (tests/_tmp/torch_shim.py + exec_nb.py) executed all cells with torch-like
+  dim errors before the real env existed. check.py exit 0, tests 18/18.
