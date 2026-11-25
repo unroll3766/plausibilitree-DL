@@ -123,3 +123,14 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   Notebooks regenerated from tests/_tmp generators and structurally validated
   (nbformat 4.5, all code cells compile, 29 PointNet + 39 AE markers),
   check.py exit 0, tests 18/18. NOT executed - no torch on this box.
+- 2026-11-24 — Autoencoder ARCH knob: "pointnet" (existing) or "pointnet++".
+  PointNet++ = two SetAbstraction levels (FPS + ball query + point MLP +
+  group max) -> global max -> FC latent -> FC decoder -> two
+  FeaturePropagation levels (3-NN inverse-distance interp + skip concat) ->
+  per-point head; OUTPUT_RANGE bound applies to both archs via bound_xyz.
+  Knobs SA_POINTS/SA_RADII/SA_NSAMPLE; guard: max(SA_POINTS) <= N_POINTS.
+  Shapes + FPS/ball-query/interp math verified with a numpy mirror
+  (tests/_tmp/pp_shapes.py): SA (B,128,512)->(B,256,128), FP->(B,C,N);
+  caught and fixed a torch.gather ndim mismatch in index_points (3-D points
+  vs 4-D grouped index). Regenerated + revalidated (56 AE markers), check.py
+  exit 0, tests 18/18. NOT executed - no torch on this box.
