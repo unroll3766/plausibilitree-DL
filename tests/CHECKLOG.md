@@ -168,3 +168,18 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   OUTPUT_RANGE=zero_1 OK (recon xyz in [0,1]). Also a numpy torch-shim
   (tests/_tmp/torch_shim.py + exec_nb.py) executed all cells with torch-like
   dim errors before the real env existed. check.py exit 0, tests 18/18.
+- 2026-11-24 — Embedding->label prediction added. autoencoder.ipynb: CKPT_PATH
+  knob saves {arch, in_channels, n_points, latent_dim, output_range, sa_*,
+  extra_dims, state_dict} after training (torch.save); both model classes got
+  an encode() method. New notebooks/predict_from_embeddings.ipynb: loads the
+  ckpt (torch.load weights_only=True), rebuilds the encoder via build_model
+  from the saved config (model code extracted verbatim from autoencoder.ipynb
+  at build time - no drift), freezes it (requires_grad_(False)), embeds all
+  plots once (n, LATENT_DIM), trains a Linear(L->256)->ReLU->Dropout->Linear
+  head on z with the same LABEL_KEY/VAL_FRAC/STANDARDIZE_LABELS/PATIENCE
+  patterns as train_pointnet.ipynb; eval prints RMSE/MAE + true-vs-pred
+  scatter + embedding-norm histogram. REAL torch 2.15 CPU round trip verified
+  on the /tmp/nbtest synthetic set: AE pointnet -> ckpt -> predict (early
+  stop fired, best head restored); AE pointnet++ -> ckpt -> predict with a
+  different LABEL_KEY. Both NOTEBOOK EXECUTED OK. Structural: 62 AE + 53 pred
+  markers, check.py exit 0, tests 18/18.
