@@ -145,3 +145,14 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   decoder view (B,C*N)->(B,C,N). Added k=min(3,M) so SA_POINTS[1] < 3 cannot
   crash topk. Regen idempotent (byte-identical), 57 AE markers, check.py
   exit 0, tests 18/18. Still NOT executed - no torch on this box.
+- 2026-11-24 — User-reported bug in ARCH="pointnet++": training crashed with
+  "dimension out of range (expected [-1, 0], got 1)" at any sample size;
+  "pointnet" unaffected. Root cause: farthest_point_sample used
+  dist.max(dim=1).values.argmax(dim=1) — the .values is already 1-D (B,), so
+  the second argmax(dim=1) is invalid. Fixed to dist.argmax(dim=1). The numpy
+  mirror had the correct form, which is why it passed. Full audit of every
+  dim-argument op in the model cell (chamfer, gather x3, topk, max/min/sum
+  dims, expand/unsqueeze/view) re-checked by hand; diff is exactly the one
+  line. Validator gained a FORBIDDEN pattern (max(dim=1).values.argmax) so this
+  cannot regress. Regenerated + revalidated (58 AE markers), check.py exit 0,
+  tests 18/18. Still not executed under torch - no torch on this box.
