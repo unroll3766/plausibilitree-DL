@@ -114,3 +114,12 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   verified in numpy (tests/_tmp/bound_check.py): xyz within range, extra dims
   bit-identical. Regenerated + revalidated (31 AE markers), check.py exit 0,
   tests 18/18.
+- 2026-11-24 — Optional early stopping added to BOTH notebooks: PATIENCE
+  (None = off) and MIN_DELTA knobs in the config cell, train loops monitor the
+  val loss, track best_val, restore the best checkpoint via load_state_dict
+  after the loop, and print an early-stopping message. Both notebooks split a
+  validation set via random_split with VAL_FRAC (0.2); with a single sample
+  there is no val split and early stopping prints an "inactive" note.
+  Notebooks regenerated from tests/_tmp generators and structurally validated
+  (nbformat 4.5, all code cells compile, 29 PointNet + 39 AE markers),
+  check.py exit 0, tests 18/18. NOT executed - no torch on this box.
