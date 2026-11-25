@@ -134,3 +134,14 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   caught and fixed a torch.gather ndim mismatch in index_points (3-D points
   vs 4-D grouped index). Regenerated + revalidated (56 AE markers), check.py
   exit 0, tests 18/18. NOT executed - no torch on this box.
+- 2026-11-24 — Deep re-verification of the PointNet++ notebook (a6099a1) after
+  user asked to check the work. tests/_tmp/pp_shapes.py now mirrors every model
+  cell function in numpy and asserts: index_points == brute-force gather in
+  both branches; FPS greedy-farthest property per step; ball_query picks are
+  in-ball or the nearest point; SA chain shapes (B,128,512)->(B,256,128);
+  FP shapes incl. M==1 expand branch and k=min(3,M) clamp; bound_xyz ranges
+  (neg1_1/zero_1/none, extra dims untouched); chamfer self=0 + symmetric;
+  build_model guards (SA_POINTS<=N_POINTS, len match, bad arch/range raise);
+  decoder view (B,C*N)->(B,C,N). Added k=min(3,M) so SA_POINTS[1] < 3 cannot
+  crash topk. Regen idempotent (byte-identical), 57 AE markers, check.py
+  exit 0, tests 18/18. Still NOT executed - no torch on this box.
