@@ -218,3 +218,20 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   end to end vs BOTH ckpts (pointnet + pointnet++), all 7 synthetic labels,
   heads + metrics.json written, early stop fired. 58 markers, check.py 0,
   tests 18/18.
+- 2026-11-24 — User notes applied to ALL notebooks (patched surgically, each
+  replacement asserted unique): (1) DROPOUT knob in every config cell, wired
+  as nn.Dropout(DROPOUT) after ReLUs in every architecture (PointNetReg point
+  MLP + head, PointNetAE enc/enc_fc/dec_fc, PointNet++ SA + FP + enc_fc/dec_fc
+  + head, and the pred heads which had hardcoded Dropout(0.3)); (2)
+  autoencoder eval now also reconstructs + plots a VAL sample (second 1x3
+  scatter set) when a val split exists, with a printed skip note otherwise;
+  (3) fitting notebooks now eval/plot the TRAIN split too: train_pointnet and
+  predict_from_embeddings print train+val RMSE/MAE with side-by-side scatter
+  panels; predict_all_labels draws train AND val per-label scatter grids.
+  Caught by real torch run: pred notebooks embed a verbatim copy of the AE
+  model cell, so patching the AE made their state_dict stale (unexpected
+  keys enc_fc.4.*) - fixed by re-syncing the embedded cell from the patched
+  autoencoder.ipynb (resync_pred.py). REAL torch 2.15 CPU reruns of all 4
+  notebooks with DROPOUT=0.5: all OK (AE val-branch and no-val branch, pred
+  train+val, predall 7 heads + metrics.json). Markers 36/72/59/63, check.py 0,
+  tests 18/18.
