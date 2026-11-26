@@ -204,3 +204,17 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   pred notebook re-executed end to end vs both ckpts with EMBED_BATCH=2/4
   (early stopping + best-head restore + eval OK). GPU-transfer scan: only
   model/head/chunk-sized tensors hit the device now.
+- 2026-11-24 — New notebooks/predict_all_labels.ipynb: one frozen-embedding
+  head per label, shared settings. Embeddings computed once (EMBED_BATCH
+  chunked), ONE randperm(SEED) train/val split reused for every label so
+  metrics are comparable; per label: z-scored with train stats, head
+  Linear(L,256)->ReLU->Dropout->Linear(256,1), PATIENCE/MIN_DELTA early stop,
+  best-val head saved to HEADS_DIR/<LABEL>.pt with {label_key, latent_dim,
+  y_mean, y_std, state_dict}; metrics.json (rmse/mae/r2/n_val/...) per label.
+  Eval cell: per-label true-vs-pred scatter grid + normalized-RMSE and R2 bar
+  charts + shared ||z|| histogram. R2 is null when the val split has <2
+  points (ss_tot=0; NaN would be invalid JSON and crashed matplotlib bars -
+  fixed to None/nan). Non-numeric labels skipped. REAL torch 2.15 CPU: ran
+  end to end vs BOTH ckpts (pointnet + pointnet++), all 7 synthetic labels,
+  heads + metrics.json written, early stop fired. 58 markers, check.py 0,
+  tests 18/18.
