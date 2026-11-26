@@ -245,3 +245,10 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   labels x train+val grids have true-axis max == raw split max exactly.
   Validator FORBIDS 'true = true * m["y_std"]'. 65 predall markers, check.py
   0, tests 18/18.
+- 2026-11-24 — autoencoder.ipynb train cell now records per-epoch losses
+  (history["train"]/["val"]) and plots a semilogy loss-over-epoch curve after
+  the loop (train + val when a val split exists; train only in single-sample
+  mode; honors early stopping since the history length follows the loop).
+  Verified under real torch 2.15 CPU with a semilogy hook: N_SAMPLES=all ->
+  labels ['train mse', 'val mse'], history 8/8; N_SAMPLES=1 pointnet++ ->
+  ['train mse'] only, 5/0. 80 AE markers, check.py 0, tests 18/18.
