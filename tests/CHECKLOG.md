@@ -194,3 +194,13 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   the RNG sequence - expected, not a bug); full notebook re-executed with
   EMBED_BATCH=2 against the pointnet++ ckpt: OK, early stopping + best-head
   restore + eval all fine. 56 pred markers, check.py exit 0, tests 18/18.
+- 2026-11-24 — Re-verification of the e85e067 OOM fix after user asked to
+  check: regen byte-identical to committed notebook; 56 pred markers + the
+  FORBIDDEN full-batch-stack pattern absent; check.py exit 0, tests 18/18.
+  Memory math: old peak (n,1024,N_POINTS) float32 = 94.42 GB at n=1407,
+  N_POINTS=16384 - matches the reported 94.41 GB; chunked peak at
+  EMBED_BATCH=32 is 2.15 GB there (0.13 GB at N_POINTS=1024). Real torch:
+  chunked==full for pointnet (2e-7), ++ within FPS-seed noise (~1e-3);
+  pred notebook re-executed end to end vs both ckpts with EMBED_BATCH=2/4
+  (early stopping + best-head restore + eval OK). GPU-transfer scan: only
+  model/head/chunk-sized tensors hit the device now.
