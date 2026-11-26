@@ -235,3 +235,13 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   notebooks with DROPOUT=0.5: all OK (AE val-branch and no-val branch, pred
   train+val, predall 7 heads + metrics.json). Markers 36/72/59/63, check.py 0,
   tests 18/18.
+- 2026-11-24 — User-reported wrong scatter extents in predict_all_labels
+  (NUM_TREES axis to ~60,000 vs real max ~655). Root cause: the eval grid
+  un-standardized BOTH series, but true comes from ys_t_all in RAW units -
+  only the head output is standardized. True axis was inflated by ~y_std.
+  Fixed: only pred is scaled by y_std/y_mean. metrics.json was already
+  correct (train cell un-standardizes only the prediction). Verified under
+  real torch 2.15 CPU with a scatter-hook runner (check_axis.py): all 7
+  labels x train+val grids have true-axis max == raw split max exactly.
+  Validator FORBIDS 'true = true * m["y_std"]'. 65 predall markers, check.py
+  0, tests 18/18.
