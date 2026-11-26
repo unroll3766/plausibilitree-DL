@@ -4,3 +4,6 @@ __pycache__/
 .pytest_cache/
 tests/_tmp/
 scratch/
+# default outputs of the README quick start / notebooks at the repo root
+dl_dataset/
+checkpoints/

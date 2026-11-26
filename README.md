@@ -95,16 +95,31 @@ Run with a PyTorch environment (`notebooks/requirements.txt`), e.g.
 `jupyter lab notebooks/train_pointnet.ipynb`.
 
 [`notebooks/autoencoder.ipynb`](notebooks/autoencoder.ipynb) — same design,
-but an unsupervised PointNet-style **autoencoder** (no labels needed). Set
-`N_SAMPLES = 1` to load a single plot and tweak the model until it overfits
-it; `EXTRA_DIMS` selects the extra per-point channels; `N_POINTS` fixes the
-points per sample.
+but an unsupervised PointNet-style **autoencoder** (no labels needed; `ARCH`
+selects `"pointnet"` or `"pointnet++"`). Set `N_SAMPLES = 1` to load a single
+plot and tweak the model until it overfits it; `EXTRA_DIMS` selects the extra
+per-point channels; `N_POINTS` fixes the points per sample. The trained model
+(config + weights) is saved to `CKPT_PATH`. `INIT_CKPT_PATH` optionally
+warm-starts the weights from a previous checkpoint before training.
+
+[`notebooks/predict_from_embeddings.ipynb`](notebooks/predict_from_embeddings.ipynb)
+— loads the **frozen encoder** from the autoencoder checkpoint and trains a
+small MLP head on the latent vector to predict one label (`LABEL_KEY`).
+
+[`notebooks/predict_all_labels.ipynb`](notebooks/predict_all_labels.ipynb) —
+same, but trains **one head per label** (shared split/settings), saving each
+to `HEADS_DIR/<LABEL_KEY>.pt` plus a `metrics.json` summary.
+
+All notebooks take `VAL_FEATURES_DIR`/`VAL_LABELS_DIR` (default `None`): when
+set, that whole folder is the validation set instead of a random `VAL_FRAC`
+split of the training data.
 
 ## Development
 
 - Env: conda env `ssf` (shared with plausibilitree), always via
-  `conda run -n ssf python ...`. The notebook needs a separate training env
-  with `torch` (see `notebooks/requirements.txt`); `ssf` has no torch.
+  `conda run -n ssf python ...`. The notebooks need a separate training env
+  with `torch` (see `notebooks/requirements.txt`); `ssf` has no torch. On
+  this box that env is `pytorch` (CPU-only torch).
 - `conda run -n ssf python check.py` — compile + import every module.
 - `conda run -n ssf python tests/run_all.py` — test suite (check `$?`).
 - Verification log: `tests/CHECKLOG.md`.

@@ -264,3 +264,15 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   dedicated-val runs report val n=2 (predall n_val=2 per label, PLOT_AREA
   R2 null on constant label). Structural validator (markers + ast.parse of
   every code cell) PASSED; check.py 0; tests 18/18.
+- 2026-11-26 — Full-repo review. plausdl package, prepare.py, check.py,
+  tests/run_all.py re-read: no issues. Notebooks: custom AST linter
+  (undefined names across chained cells) CLEAN; embedded AE model classes
+  byte-identical across autoencoder/predict_from_embeddings/predict_all_labels.
+  Fixes applied: .gitignore now covers dl_dataset/ + checkpoints/ (README
+  quick-start + notebook default outputs at repo root); the 3 label notebooks
+  raise a clear ValueError when only one of VAL_FEATURES_DIR/VAL_LABELS_DIR is
+  set (was a bare TypeError in PlotDataset); AGENTS.md env section + README
+  updated (pytorch env exists since 2026-11-26, all 4 notebooks documented,
+  VAL_*/INIT_CKPT_PATH mentioned); one markdown line per notebook. Re-verified:
+  validator PASSED, nb_lint CLEAN, real-torch exec 10/10 (incl. new
+  pred_valdirs_half guard case), check.py 0, tests 18/18.

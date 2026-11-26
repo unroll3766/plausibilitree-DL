@@ -101,13 +101,18 @@ adds facts specific to this repository.
   lazrs, scipy, rasterio). Run everything through the wrapper:
   `conda run -n ssf python <script>`. Invoking the env's python (or
   `python3`) standalone is blocked on this box.
-- requirements.txt lists what the data-prep library itself needs. The training
-  notebook (`notebooks/train_pointnet.ipynb`) needs a separate env with
-  `torch` + `jupyter` — see `notebooks/requirements.txt`. As of 2026-11-23 no
-  env on this box has torch (checked ssf/NeedLR/pdal/raster_diagrams/base);
-  creating one requires asking first (install rule). The notebook is
-  validated structurally (nbformat + every code cell compiles) but has NOT
-  been executed end-to-end on this box.
+- requirements.txt lists what the data-prep library itself needs. The
+  notebooks need a separate env with `torch` — see `notebooks/requirements.txt`.
+  Since 2026-11-26 the box has a dedicated `pytorch` conda env (CPU-only
+  torch 2.15 + numpy + matplotlib + nbconvert; user-authorized installs only,
+  per the install rule). `ssf` has no torch. All 4 notebooks in `notebooks/`
+  are executed end-to-end under real torch on synthetic data via a cell
+  runner (pattern: `tests/_tmp/exec_nb_cases.py`, which reads the .ipynb and
+  execs each code cell with config overrides; `tests/_tmp/` is wiped by every
+  `tests/run_all.py` run — keep such scratch scripts in the session
+  scratchpad, e.g. `nb-scratch/`, and re-copy when lost). Notebooks are also
+  linted statically: `tests/_tmp/nb_lint.py` (undefined-name check across
+  chained cells) and an ast.parse + marker validator.
 
 ## Commands
 - Static sanity check after code edits: `conda run -n ssf python check.py`
