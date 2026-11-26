@@ -252,3 +252,15 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   Verified under real torch 2.15 CPU with a semilogy hook: N_SAMPLES=all ->
   labels ['train mse', 'val mse'], history 8/8; N_SAMPLES=1 pointnet++ ->
   ['train mse'] only, 5/0. 80 AE markers, check.py 0, tests 18/18.
+- 2026-11-26 — All 4 notebooks gained optional dedicated validation dirs
+  (VAL_FEATURES_DIR / VAL_LABELS_DIR; None = previous random VAL_FRAC
+  split). autoencoder.ipynb also gained INIT_CKPT_PATH: warm-starts weights
+  before training (strict load; arch mismatch -> ValueError). Verified under
+  real torch 2.15 CPU (tests/_tmp/exec_nb_cases.py, 9 cases, logs in
+  tests/_tmp/logs/): AE warm-start + dedicated val (plot_100 from val dir,
+  "initialized weights from ... arch=pointnet"), AE arch-mismatch ->
+  "ValueError: INIT_CKPT_PATH arch 'pointnet' != ARCH 'pointnet++'", AE/
+  train_pointnet/pred/predall random-split fallback unchanged, pred/predall
+  dedicated-val runs report val n=2 (predall n_val=2 per label, PLOT_AREA
+  R2 null on constant label). Structural validator (markers + ast.parse of
+  every code cell) PASSED; check.py 0; tests 18/18.
