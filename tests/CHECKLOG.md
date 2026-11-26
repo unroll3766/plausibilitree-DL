@@ -183,3 +183,14 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   stop fired, best head restored); AE pointnet++ -> ckpt -> predict with a
   different LABEL_KEY. Both NOTEBOOK EXECUTED OK. Structural: 62 AE + 53 pred
   markers, check.py exit 0, tests 18/18.
+- 2026-11-24 — User-reported CUDA OOM (94.41 GB) in predict_from_embeddings:
+  the notebook embedded ALL plots in one encoder forward, building a
+  (n, 1024, N_POINTS) point-MLP intermediate on the GPU. Fixed by chunked
+  encoding (EMBED_BATCH=32 knob, torch.cat of per-chunk encode). Validator
+  FORBIDS the old full-batch stack pattern. Verified under real torch 2.15
+  CPU: chunked vs single-batch encode identical for pointnet (max|diff|
+  2e-7) and within FPS-seed noise for pointnet++ (max|diff| ~1e-3; FPS draws
+  its seed point per batch row via torch.randint, so chunk boundaries shift
+  the RNG sequence - expected, not a bug); full notebook re-executed with
+  EMBED_BATCH=2 against the pointnet++ ckpt: OK, early stopping + best-head
+  restore + eval all fine. 56 pred markers, check.py exit 0, tests 18/18.
