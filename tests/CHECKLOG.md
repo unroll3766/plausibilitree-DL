@@ -276,3 +276,13 @@ Unique verification runs; check `$?` discipline. Date: 2026-11-23.
   VAL_*/INIT_CKPT_PATH mentioned); one markdown line per notebook. Re-verified:
   validator PASSED, nb_lint CLEAN, real-torch exec 10/10 (incl. new
   pred_valdirs_half guard case), check.py 0, tests 18/18.
+- 2026-11-26 — Second review pass. No TODO/FIXME/debug leftovers in source or
+  notebooks; notebooks carry no stale outputs/execution counts; notes.md fully
+  covered by the implementation; README quick-start paths/flags verified against
+  ../plausibilitree (fia_helper.py --seed/-o/-r, run_pipeline.py --radius
+  --seed --generate-dtm --understory all exist). CLI smoke via prepare.py
+  itself: --help exit 0; nonexistent input exit 2; --subsample voxel without
+  --voxel-res exit 2; real run on ../plausibilitree/examples/plot_demo exit 0
+  (26988 -> 78 pts, neg1_1 range exactly [-1,1], float32, all 7 extra dims +
+  meta + chm(303,350) + dtm(69,81) in the .npz, all 9 default labels in the
+  .json). git clean; local main ahead of origin by the review commit only.
